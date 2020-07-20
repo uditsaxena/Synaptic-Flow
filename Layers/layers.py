@@ -6,6 +6,51 @@ from torch.nn import init
 from torch.nn.parameter import Parameter
 from torch.nn.modules.utils import _pair
 
+def initialize_sInit():
+    return -100*torch.ones([1, 1])
+
+class STRConv(nn.Conv2d):
+    def __init__(self, in_channels, out_channels, kernel_size, stride=1,
+                 padding=0, dilation=1, groups=1,
+                 bias=True, padding_mode='zeros'):
+        # super().__init__(*args, **kwargs)
+        super(STRConv, self).__init__(
+            in_channels, out_channels, kernel_size, stride, padding,
+            dilation, groups, bias, padding_mode)
+        self.register_buffer('weight_mask', torch.ones(self.weight.shape))
+        self.activation = torch.relu
+
+        # if parser_args.sparse_function == 'sigmoid':
+        self.f = torch.sigmoid
+        self.sparseThreshold = nn.Parameter(initialize_sInit(), requires_grad=True)
+        # else:
+        #     self.sparseThreshold = nn.Parameter(initialize_sInit())
+
+    def forward(self, x):
+        # In case STR is not training for the hyperparameters given in the paper, change sparseWeight to self.sparseWeight if it is a problem of backprop.
+        # However, that should not be the case according to graph computation.
+
+        self.sparseWeight = self.sparseFunction(self.weight, self.sparseThreshold, self.activation, self.f)
+        #print(self.sparseWeight)
+        x = F.conv2d(
+            x, self.sparseWeight, self.bias, self.stride, self.padding, self.dilation, self.groups
+        ) 
+        #print("In forward:")
+        #sparsity, total_params, thresh = self.getSparsity()
+        #print(sparsity, total_params, thresh)
+        return x
+    
+    def sparseFunction(self, x, s, activation=torch.relu, f=torch.sigmoid):
+        return torch.sign(x) * activation(torch.abs(x) - f(s))
+
+    def getSparsity(self, f=torch.sigmoid):
+        sparseWeight = self.sparseFunction(self.weight, self.sparseThreshold, self.activation, self.f)
+        temp = sparseWeight.detach().cpu()
+        #print(self.sparseThreshold)
+        temp[temp != 0] = 1
+        #print(1.0 - (temp[temp==1].sum() / temp.numel()))
+        #print(temp[temp==1].sum())
+        return (100 - temp.mean().item() * 100), temp.numel(), f(self.sparseThreshold).item()
 
 class Linear(nn.Linear):
     def __init__(self, in_features, out_features, bias=True):

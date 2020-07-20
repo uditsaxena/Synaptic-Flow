@@ -3,11 +3,13 @@ import torch
 import numpy as np
 
 def prune_loop(model, loss, pruner, dataloader, device, sparsity, 
-               schedule, scope, epochs, reinitialize=False):
+               schedule, scope, epochs, reinitialize=False, save_pruned=False, save_path=""):
     r"""Applies score mask loop iteratively to a final sparsity level.
     """
     model.eval()
     for epoch in tqdm(range(epochs)):
+        if save_pruned:
+            torch.save(model.state_dict(), save_path+ "/%s_prune.pth" % (str(epoch)))
         pruner.apply_mask()
         pruner.score(model, loss, dataloader, device)
         if schedule == 'exponential':

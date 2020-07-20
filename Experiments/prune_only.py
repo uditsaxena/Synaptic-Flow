@@ -7,6 +7,7 @@ from Utils import generator
 from Utils import metrics
 from train import *
 from prune import *
+import os
 
 def run(args):
     ## Random Seed and Device ##
@@ -33,26 +34,31 @@ def run(args):
 
 
     ## Pre-Train ##
-    print('Pre-Train for {} epochs.'.format(args.pre_epochs))
+    #print('Pre-Train for {} epochs.'.format(args.pre_epochs))
     pre_result = train_eval_loop(model, loss, optimizer, scheduler, train_loader, 
-                                 test_loader, device, args.pre_epochs, args.verbose)
+                                 test_loader, device, 0, args.verbose)
 
     ## Prune ##
     print('Pruning with {} for {} epochs.'.format(args.pruner, args.prune_epochs))
     pruner = load.pruner(args.pruner)(generator.masked_parameters(model, args.prune_bias, args.prune_batchnorm, args.prune_residual))
     sparsity = 10**(-float(args.compression))
+    save_pruned_path = args.save_pruned_path + "/%s/%s/%s" % (args.model_class, args.model, args.pruner,)
+    if (args.save_pruned):
+        print("Saving pruned models to: %s" % (save_pruned_path, ))
+        if not os.path.exists(save_pruned_path):
+            os.makedirs(save_pruned_path)
     prune_loop(model, loss, pruner, prune_loader, device, sparsity, 
-               args.compression_schedule, args.mask_scope, args.prune_epochs, args.reinitialize)
+               args.compression_schedule, args.mask_scope, args.prune_epochs, args.reinitialize, args.save_pruned, save_pruned_path)
 
     
     ## Post-Train ##
-    print('Post-Training for {} epochs.'.format(args.post_epochs))
+    #print('Post-Training for {} epochs.'.format(args.post_epochs))
     post_result = train_eval_loop(model, loss, optimizer, scheduler, train_loader, 
                                   test_loader, device, args.post_epochs, args.verbose) 
 
     ## Display Results ##
-    frames = [pre_result.head(1), pre_result.tail(1), post_result.head(1), post_result.tail(1)]
-    train_result = pd.concat(frames, keys=['Init.', 'Pre-Prune', 'Post-Prune', 'Final'])
+    frames = [pre_result.head(1), post_result.head(1), post_result.tail(1)]
+    train_result = pd.concat(frames, keys=['Init.', 'Post-Prune', "Final"])
     prune_result = metrics.summary(model, 
                                   pruner.scores,
                                    metrics.flop(model, input_shape, device),

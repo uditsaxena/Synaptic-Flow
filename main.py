@@ -2,6 +2,7 @@ import argparse
 import json
 import os
 from Experiments import example
+from Experiments import prune_only 
 from Experiments import singleshot
 from Experiments import multishot
 from Experiments.theory import unit_conservation
@@ -17,7 +18,7 @@ if __name__ == '__main__':
     training_args.add_argument('--dataset', type=str, default='mnist',
                         choices=['mnist','cifar10','cifar100','tiny-imagenet','imagenet'],
                         help='dataset (default: mnist)')
-    training_args.add_argument('--model', type=str, default='fc', choices=['fc','conv',
+    training_args.add_argument('--model', type=str, default='fc', choices=['fc','conv','strconv',
                         'vgg11','vgg11-bn','vgg13','vgg13-bn','vgg16','vgg16-bn','vgg19','vgg19-bn',
                         'resnet18','resnet20','resnet32','resnet34','resnet44','resnet50',
                         'resnet56','resnet101','resnet110','resnet110','resnet152','resnet1202',
@@ -84,7 +85,7 @@ if __name__ == '__main__':
     ## Experiment Hyperparameters ##
     parser.add_argument('--experiment', type=str, default='example', 
                         choices=['example','singleshot','multishot','unit-conservation',
-                        'layer-conservation','imp-conservation','schedule-conservation'],
+                        'layer-conservation','imp-conservation','schedule-conservation',"prune-only"],
                         help='experiment name (default: example)')
     parser.add_argument('--expid', type=str, default='',
                         help='name used to save results (default: "")')
@@ -100,6 +101,11 @@ if __name__ == '__main__':
                         help='random seed (default: 1)')
     parser.add_argument('--verbose', action='store_true',
                         help='print statistics during training and testing')
+    
+    parser.add_argument('--save-pruned', action='store_true',
+                        help='Save intermediate pruned models')
+    parser.add_argument('--save-pruned-path', type=str, default="Results/pruned",
+                        help='path directory to save intermediate pruned models (default: "Results/data")')
     args = parser.parse_args()
 
 
@@ -140,4 +146,5 @@ if __name__ == '__main__':
         imp_conservation.run(args)
     if args.experiment == 'schedule-conservation':
         schedule_conservation.run(args)
-
+    if args.experiment == "prune-only":
+        prune_only.run(args)

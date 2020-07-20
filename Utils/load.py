@@ -94,6 +94,7 @@ def model(model_architecture, model_class):
     default_models = {
         'fc' : mlp.fc,
         'conv' : mlp.conv,
+        "strconv" : mlp.strconv,
     }
     lottery_models = {
         'vgg11' : lottery_vgg.vgg11,

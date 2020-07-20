@@ -55,6 +55,10 @@ def flop(model, input_shape, device):
                 flops['weight'] = in_channels * out_channels * kernel_size * output_size
                 if module.bias is not None:
                     flops['bias'] = out_channels * output_size
+            if isinstance(module, layers.STRConv): # or isinstance(module, nn.Conv2d):
+                sparsity, total_params, thresh = module.getSparsity()
+                #print(sparsity, total_params, thresh)
+                flops['sparseThreshold'] = thresh
             if isinstance(module, layers.BatchNorm1d) or isinstance(module, nn.BatchNorm1d):
                 if module.affine:
                     flops['weight'] = module.num_features

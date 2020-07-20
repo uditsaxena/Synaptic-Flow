@@ -15,7 +15,7 @@ def trainable(module):
 def prunable(module, batchnorm, residual):
     r"""Returns boolean whether a module is prunable.
     """
-    isprunable = isinstance(module, (layers.Linear, layers.Conv2d))
+    isprunable = isinstance(module, (layers.Linear, layers.Conv2d, layers.STRConv))
     if batchnorm:
         isprunable |= isinstance(module, (layers.BatchNorm1d, layers.BatchNorm2d))
     if residual:
@@ -35,6 +35,8 @@ def masked_parameters(model, bias=False, batchnorm=False, residual=False):
     mask and parameter tensors.
     """
     for module in filter(lambda p: prunable(p, batchnorm, residual), model.modules()):
+        #print(module._get_name())
         for mask, param in zip(masks(module), module.parameters()):
+            
             if param is not module.bias or bias is True:
                 yield mask, param

@@ -47,7 +47,11 @@ class Pruner:
         r"""Applies mask to prunable parameters.
         """
         for mask, param in self.masked_parameters:
+            #print("---")
+            #print("Mask: ", mask.shape)
+            #print("Param: ", param.shape)
             param.mul_(mask)
+
 
     def alpha_mask(self, alpha):
         r"""Set all masks to alpha in model.
@@ -178,10 +182,13 @@ class SynFlow(Pruner):
         input = torch.ones([1] + input_dim).to(device)
         output = model(input)
         torch.sum(output).backward()
+        #print(output)
+        #print(torch.sum(output))
         
         for _, p in self.masked_parameters:
             self.scores[id(p)] = torch.clone(p.grad * p).detach().abs_()
             p.grad.data.zero_()
 
+        
         nonlinearize(model, signs)
 
