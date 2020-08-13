@@ -95,6 +95,7 @@ def model(model_architecture, model_class):
         'fc' : mlp.fc,
         'fc-orth' : mlp.fc_orth,
         'conv' : mlp.conv,
+        'conv-orth' : mlp.conv_orth,
         "strconv" : mlp.strconv,
     }
     lottery_models = {
