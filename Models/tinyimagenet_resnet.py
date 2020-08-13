@@ -108,7 +108,7 @@ class ResNet(nn.Module):
         for m in self.modules():
             if isinstance(m, layers.Conv2d):
                 if orth_init:
-                    makeDeltaOrthogonal(m.weight, nn.init.calculate_gain('relu'))
+                    self.makeDeltaOrthogonal(m.weight, nn.init.calculate_gain('relu'))
                 else:
                     nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
             elif isinstance(m, (layers.BatchNorm2d, nn.GroupNorm)):
@@ -131,7 +131,7 @@ class ResNet(nn.Module):
             print("In_filters should not be greater than out_filters.")
         weights.data.fill_(0)
         dim = max(rows, cols)
-        q = genOrthgonal(dim)
+        q = self.genOrthgonal(dim)
         mid1 = weights.size(2) // 2
         mid2 = weights.size(3) // 2
         weights[:, :, mid1, mid2] = q[:weights.size(0), :weights.size(1)]
