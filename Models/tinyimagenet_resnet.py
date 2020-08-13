@@ -134,8 +134,9 @@ class ResNet(nn.Module):
         q = self.genOrthgonal(dim)
         mid1 = weights.size(2) // 2
         mid2 = weights.size(3) // 2
-        weights[:, :, mid1, mid2] = q[:weights.size(0), :weights.size(1)]
-        weights.mul_(gain)
+        with torch.no_grad():
+            weights[:, :, mid1, mid2] = q[:weights.size(0), :weights.size(1)]
+            weights.mul_(gain)
 
     def _make_layer(self, block, out_channels, num_blocks, stride, base_width):
         """make resnet layers(by layer i didnt mean this 'layer' was the 
