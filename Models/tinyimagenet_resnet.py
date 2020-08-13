@@ -83,7 +83,7 @@ class BottleNeck(nn.Module):
     
 class ResNet(nn.Module):
 
-    def __init__(self, block, num_block, base_width, num_classes=200, dense_classifier=False):
+    def __init__(self, block, num_block, base_width, num_classes=200, dense_classifier=False, orth_init=False):
         super().__init__()
 
         self.in_channels = 64
@@ -102,15 +102,40 @@ class ResNet(nn.Module):
         self.fc = layers.Linear(512 * block.expansion, num_classes)
         if dense_classifier:
             self.fc = nn.Linear(512 * block.expansion, num_classes)
-        self._initialize_weights()
+        self._initialize_weights(orth_init=orth_init)
 
-    def _initialize_weights(self):
+    def _initialize_weights(self, orth_init=False):
         for m in self.modules():
             if isinstance(m, layers.Conv2d):
-                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+                if orth_init:
+                    makeDeltaOrthogonal(m.weight, nn.init.calculate_gain('relu'))
+                else:
+                    nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
             elif isinstance(m, (layers.BatchNorm2d, nn.GroupNorm)):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
+
+    def genOrthgonal(self, dim):
+        a = torch.zeros((dim, dim)).normal_(0, 1)
+        q, r = torch.qr(a)
+        d = torch.diag(r, 0).sign()
+        diag_size = d.size(0)
+        d_exp = d.view(1, diag_size).expand(diag_size, diag_size)
+        q.mul_(d_exp)
+        return q
+
+    def makeDeltaOrthogonal(self, weights, gain):
+        rows = weights.size(0)
+        cols = weights.size(1)
+        if rows > cols:
+            print("In_filters should not be greater than out_filters.")
+        weights.data.fill_(0)
+        dim = max(rows, cols)
+        q = genOrthgonal(dim)
+        mid1 = weights.size(2) // 2
+        mid2 = weights.size(3) // 2
+        weights[:, :, mid1, mid2] = q[:weights.size(0), :weights.size(1)]
+        weights.mul_(gain)
 
     def _make_layer(self, block, out_channels, num_blocks, stride, base_width):
         """make resnet layers(by layer i didnt mean this 'layer' was the 
@@ -149,8 +174,8 @@ class ResNet(nn.Module):
 
         return output 
 
-def _resnet(arch, block, num_block, base_width, num_classes, dense_classifier, pretrained):
-    model = ResNet(block, num_block, base_width, num_classes, dense_classifier)
+def _resnet(arch, block, num_block, base_width, num_classes, dense_classifier, pretrained, orth_init=False):
+    model = ResNet(block, num_block, base_width, num_classes, dense_classifier, orth_init=orth_init)
     if pretrained:
         pretrained_path = 'Models/pretrained/{}-cifar{}.pt'.format(arch, num_classes)
         pretrained_dict = torch.load(pretrained_path)
@@ -163,6 +188,11 @@ def resnet18(input_shape, num_classes, dense_classifier=False, pretrained=False)
     """ return a ResNet 18 object
     """
     return _resnet('resnet18', BasicBlock, [2, 2, 2, 2], 64, num_classes, dense_classifier, pretrained)
+
+def resnet18_orth(input_shape, num_classes, dense_classifier=False, pretrained=False):
+    """ return a ResNet 18 object
+    """
+    return _resnet('resnet18', BasicBlock, [2, 2, 2, 2], 64, num_classes, dense_classifier, pretrained, orth_init=True)
 
 def resnet34(input_shape, num_classes, dense_classifier=False, pretrained=False):
     """ return a ResNet 34 object

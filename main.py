@@ -20,7 +20,7 @@ if __name__ == '__main__':
                         help='dataset (default: mnist)')
     training_args.add_argument('--model', type=str, default='fc', choices=['fc','fc-orth','conv','conv-orth','strconv',
                         'vgg11','vgg11-bn','vgg13','vgg13-bn','vgg16','vgg16-bn','vgg19','vgg19-bn',
-                        'resnet18','resnet20','resnet32','resnet34','resnet44','resnet50',
+                        'resnet18','resnet18-orth', 'resnet20','resnet32','resnet34','resnet44','resnet50',
                         'resnet56','resnet101','resnet110','resnet110','resnet152','resnet1202',
                         'wide-resnet18','wide-resnet20','wide-resnet32','wide-resnet34','wide-resnet44','wide-resnet50',
                         'wide-resnet56','wide-resnet101','wide-resnet110','wide-resnet110','wide-resnet152','wide-resnet1202'],
