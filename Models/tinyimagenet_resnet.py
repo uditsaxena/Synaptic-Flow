@@ -108,7 +108,8 @@ class ResNet(nn.Module):
         for m in self.modules():
             if isinstance(m, layers.Conv2d):
                 if orth_init:
-                    self.makeDeltaOrthogonal(m.weight, nn.init.calculate_gain('relu'))
+                    #self.makeDeltaOrthogonal(m.weight, nn.init.calculate_gain('relu'))
+                    nn.init.orthogonal_(m.weight)
                 else:
                     nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
             elif isinstance(m, (layers.BatchNorm2d, nn.GroupNorm)):
