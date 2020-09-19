@@ -191,7 +191,9 @@ def pruner(method):
         'snip' : pruners.SNIP,
         'grasp': pruners.GraSP,
         'synflow' : pruners.SynFlow,
+        'synflow-l2' : pruners.SynFlow_L2,
         'synflow-dist' : pruners.SynFlow_Dist,
+        'synflow-dist-l2' : pruners.SynFlow_Dist_L2,
     }
     return prune_methods[method]
 
