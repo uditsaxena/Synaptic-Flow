@@ -52,7 +52,7 @@ if __name__ == '__main__':
     # Pruning Hyperparameters
     pruning_args = parser.add_argument_group('pruning')
     pruning_args.add_argument('--pruner', type=str, default='rand', 
-                        choices=['rand','mag','snip','grasp','synflow', 'synflow-dist'],
+                        choices=['rand','mag','snip','grasp','synflow', 'synflow-l2', 'synflow-dist', 'synflow-dist-l2'],
                         help='prune strategy (default: rand)')
     pruning_args.add_argument('--compression', type=float, default=1.0,
                         help='quotient of prunable non-zero prunable parameters before and after pruning (default: 1.0)')
