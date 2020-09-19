@@ -10,6 +10,7 @@ from prune import *
 import os
 
 def run(args):
+    print(args)
     ## Random Seed and Device ##
     torch.manual_seed(args.seed)
     device = load.device(args.gpu)
@@ -17,7 +18,7 @@ def run(args):
     ## Data ##
     print('Loading {} dataset.'.format(args.dataset))
     input_shape, num_classes = load.dimension(args.dataset) 
-    prune_loader = load.dataloader(args.dataset, args.prune_batch_size, True, args.workers, args.prune_dataset_ratio * num_classes)
+    prune_loader = load.dataloader(args.dataset, args.prune_batch_size, True, args.workers, args.prune_dataset_ratio * num_classes, prune_loader=True)
     train_loader = load.dataloader(args.dataset, args.train_batch_size, True, args.workers)
     test_loader = load.dataloader(args.dataset, args.test_batch_size, False, args.workers)
 
@@ -42,6 +43,7 @@ def run(args):
     print('Pruning with {} for {} epochs.'.format(args.pruner, args.prune_epochs))
     pruner = load.pruner(args.pruner)(generator.masked_parameters(model, args.prune_bias, args.prune_batchnorm, args.prune_residual))
     sparsity = 10**(-float(args.compression))
+    print("Sparsity: {}".format(sparsity))
     save_pruned_path = args.save_pruned_path + "/%s/%s/%s" % (args.model_class, args.model, args.pruner,)
     if (args.save_pruned):
         print("Saving pruned models to: %s" % (save_pruned_path, ))
@@ -55,6 +57,15 @@ def run(args):
     #print('Post-Training for {} epochs.'.format(args.post_epochs))
     post_result = train_eval_loop(model, loss, optimizer, scheduler, train_loader, 
                                   test_loader, device, args.post_epochs, args.verbose) 
+    
+    if (args.save_result):
+        save_result_path = args.save_pruned_path + "/%s/%s/%s" % (args.model_class, 
+                                                                 args.model, args.pruner,)
+        if not os.path.exists(save_pruned_path):
+            os.makedirs(save_result_path)
+        post_result.to_csv(save_result_path + "/%s" % (args.dataset + "_" + str(args.seed) 
+                                                                        + "_" + str(args.compression) + ".csv"))
+    
 
     ## Display Results ##
     frames = [pre_result.head(1), post_result.head(1), post_result.tail(1)]

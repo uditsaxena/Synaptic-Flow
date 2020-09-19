@@ -52,7 +52,7 @@ if __name__ == '__main__':
     # Pruning Hyperparameters
     pruning_args = parser.add_argument_group('pruning')
     pruning_args.add_argument('--pruner', type=str, default='rand', 
-                        choices=['rand','mag','snip','grasp','synflow'],
+                        choices=['rand','mag','snip','grasp','synflow', 'synflow-dist'],
                         help='prune strategy (default: rand)')
     pruning_args.add_argument('--compression', type=float, default=1.0,
                         help='quotient of prunable non-zero prunable parameters before and after pruning (default: 1.0)')
@@ -103,6 +103,8 @@ if __name__ == '__main__':
                         help='print statistics during training and testing')
     
     parser.add_argument('--save-pruned', action='store_true',
+                        help='Save intermediate pruned models')
+    parser.add_argument('--save-result', action='store_true',
                         help='Save intermediate pruned models')
     parser.add_argument('--save-pruned-path', type=str, default="Results/pruned",
                         help='path directory to save intermediate pruned models (default: "Results/data")')
