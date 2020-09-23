@@ -67,6 +67,8 @@ def run(args):
                                                                  args.model, args.pruner,)
         if not os.path.exists(save_pruned_path):
             os.makedirs(save_result_path)
+
+        print(f"Saving results to {save_result_path}")
         post_result.to_csv(save_result_path + "/%s" % (args.dataset + "_" + str(args.seed) 
                                                                         + "_" + str(args.compression) + ".csv"))
     
