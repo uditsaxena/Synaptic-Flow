@@ -108,6 +108,12 @@ if __name__ == '__main__':
                         help='Save intermediate pruned models')
     parser.add_argument('--save-pruned-path', type=str, default="Results/pruned",
                         help='path directory to save intermediate pruned models (default: "Results/data")')
+
+    parser.add_argument('--compute-path-kernel', action='store_true',
+                        help="Compute path kernel flag (default: False)")
+    parser.add_argument('--track-weight-movement', action='store_true',
+                        help="Track weight movement norm flag, (default: False)")
+
     args = parser.parse_args()
 
 

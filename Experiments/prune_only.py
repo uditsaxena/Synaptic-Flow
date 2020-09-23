@@ -18,7 +18,8 @@ def run(args):
     ## Data ##
     print('Loading {} dataset.'.format(args.dataset))
     input_shape, num_classes = load.dimension(args.dataset) 
-    prune_loader = load.dataloader(args.dataset, args.prune_batch_size, True, args.workers, args.prune_dataset_ratio * num_classes, prune_loader=True)
+    prune_loader = load.dataloader(args.dataset, args.prune_batch_size, True, args.workers,
+                                   args.prune_dataset_ratio * num_classes, prune_loader=True)
     train_loader = load.dataloader(args.dataset, args.train_batch_size, True, args.workers)
     test_loader = load.dataloader(args.dataset, args.test_batch_size, False, args.workers)
 
@@ -41,7 +42,8 @@ def run(args):
 
     ## Prune ##
     print('Pruning with {} for {} epochs.'.format(args.pruner, args.prune_epochs))
-    pruner = load.pruner(args.pruner)(generator.masked_parameters(model, args.prune_bias, args.prune_batchnorm, args.prune_residual))
+    pruner = load.pruner(args.pruner)(generator.masked_parameters(model, args.prune_bias,
+                                                                  args.prune_batchnorm, args.prune_residual))
     sparsity = 10**(-float(args.compression))
     print("Sparsity: {}".format(sparsity))
     save_pruned_path = args.save_pruned_path + "/%s/%s/%s" % (args.model_class, args.model, args.pruner,)
@@ -50,13 +52,15 @@ def run(args):
         if not os.path.exists(save_pruned_path):
             os.makedirs(save_pruned_path)
     prune_loop(model, loss, pruner, prune_loader, device, sparsity, 
-               args.compression_schedule, args.mask_scope, args.prune_epochs, args.reinitialize, args.save_pruned, save_pruned_path)
+               args.compression_schedule, args.mask_scope, args.prune_epochs,
+               args.reinitialize, args.save_pruned, save_pruned_path)
 
     
     ## Post-Train ##
     #print('Post-Training for {} epochs.'.format(args.post_epochs))
     post_result = train_eval_loop(model, loss, optimizer, scheduler, train_loader, 
-                                  test_loader, device, args.post_epochs, args.verbose) 
+                                  test_loader, device, args.post_epochs, args.verbose,
+                                  args.compute_path_kernel, args.track_weight_movement)
     
     if (args.save_result):
         save_result_path = args.save_pruned_path + "/%s/%s/%s" % (args.model_class, 

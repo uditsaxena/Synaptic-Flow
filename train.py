@@ -2,6 +2,7 @@ import torch
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
+from path_kernel import compute_path_kernel_sum
 
 def train(model, loss, optimizer, dataloader, device, epoch, verbose, log_interval=10):
     model.train()
@@ -42,16 +43,37 @@ def eval(model, loss, dataloader, device, verbose):
             average_loss, correct1, len(dataloader.dataset), accuracy1))
     return average_loss, accuracy1, accuracy5
 
-def train_eval_loop(model, loss, optimizer, scheduler, train_loader, test_loader, device, epochs, verbose):
+def train_eval_loop(model, loss, optimizer, scheduler, train_loader, test_loader, device, epochs,
+                    verbose, compute_path_kernel = False, track_weight_movement = False):
+    path_kernel = 0
+
+    allw0 = -1
+    weight_movement_norm = 0
+
     test_loss, accuracy1, accuracy5 = eval(model, loss, test_loader, device, verbose)
-    rows = [[np.nan, test_loss, accuracy1, accuracy5]]
+    rows = [[np.nan, test_loss, accuracy1, accuracy5, path_kernel, weight_movement_norm]]
+
     for epoch in tqdm(range(epochs)):
         train_loss = train(model, loss, optimizer, train_loader, device, epoch, verbose)
+
+        # compute path kernel
+        if compute_path_kernel:
+            path_kernel = compute_path_kernel_sum(model, train_loader, device)
+
+        # compute weights movement
+        if track_weight_movement:
+            if epoch == 0:
+                allw0 = torch.nn.utils.parameters_to_vector(model.parameters()).detach().cpu().numpy().copy()
+                weight_movement_norm = np.linalg.norm(allw0)
+            else:
+                allw = torch.nn.utils.parameters_to_vector(model.parameters()).detach().cpu().numpy().copy()
+                weight_movement_norm = np.linalg.norm(allw - allw0)
+
         test_loss, accuracy1, accuracy5 = eval(model, loss, test_loader, device, verbose)
-        row = [train_loss, test_loss, accuracy1, accuracy5]
+        row = [train_loss, test_loss, accuracy1, accuracy5, path_kernel, weight_movement_norm]
         scheduler.step()
         rows.append(row)
-    columns = ['train_loss', 'test_loss', 'top1_accuracy', 'top5_accuracy']
+    columns = ['train_loss', 'test_loss', 'top1_accuracy', 'top5_accuracy', 'path_kernel', 'weight_movement_norm']
     return pd.DataFrame(rows, columns=columns)
 
 
