@@ -62,7 +62,12 @@ def train_eval_loop(model, loss, optimizer, scheduler, train_loader, test_loader
         train_loss, batch_output, batch_target = train(model, loss, optimizer, train_loader, device, epoch, verbose)
 
         # save batch_output, batch_target:
-        print(save_dir, type(batch_output), type(batch_target)) 
+        # print(save_dir, type(batch_output), type(batch_target)) 
+        with open(save_dir + f"/{epoch}_output.npy", 'wb') as f:
+            np.save(f, batch_output.cpu().data)
+
+        with open(save_dir + f"/{epoch}_target.npy", 'wb') as f:
+            np.save(f, batch_target.cpu().data)
 
         # compute path kernel
         if compute_path_kernel:
