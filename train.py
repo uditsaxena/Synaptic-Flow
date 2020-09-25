@@ -7,6 +7,7 @@ from path_kernel import compute_path_kernel_sum
 def train(model, loss, optimizer, dataloader, device, epoch, verbose, log_interval=10):
     model.train()
     total = 0
+    batch_output, batch_target = None
     for batch_idx, (data, target) in enumerate(dataloader):
         data, target = data.to(device), target.to(device)
         optimizer.zero_grad()
@@ -15,11 +16,15 @@ def train(model, loss, optimizer, dataloader, device, epoch, verbose, log_interv
         total += train_loss.item() * data.size(0)
         train_loss.backward()
         optimizer.step()
+
+        if batch_idx == 0:
+            batch_output, batch_target = output, target
+
         if verbose & (batch_idx % log_interval == 0):
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(dataloader.dataset),
                 100. * batch_idx / len(dataloader), train_loss.item()))
-    return total / len(dataloader.dataset)
+    return total / len(dataloader.dataset), batch_output, batch_target
 
 def eval(model, loss, dataloader, device, verbose):
     model.eval()
@@ -44,7 +49,8 @@ def eval(model, loss, dataloader, device, verbose):
     return average_loss, accuracy1, accuracy5
 
 def train_eval_loop(model, loss, optimizer, scheduler, train_loader, test_loader, device, epochs,
-                    verbose, compute_path_kernel = False, track_weight_movement = False):
+                    verbose, compute_path_kernel = False, track_weight_movement = False,
+                    save_dir = ""):
     path_kernel = 0
 
     allw0 = -1
@@ -54,7 +60,10 @@ def train_eval_loop(model, loss, optimizer, scheduler, train_loader, test_loader
     rows = [[np.nan, test_loss, accuracy1, accuracy5, path_kernel, weight_movement_norm]]
 
     for epoch in tqdm(range(epochs)):
-        train_loss = train(model, loss, optimizer, train_loader, device, epoch, verbose)
+        train_loss, batch_output, batch_target = train(model, loss, optimizer, train_loader, device, epoch, verbose)
+
+        # save batch_output, batch_target:
+        
 
         # compute path kernel
         if compute_path_kernel:
