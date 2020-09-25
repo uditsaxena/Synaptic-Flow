@@ -7,7 +7,7 @@ from path_kernel import compute_path_kernel_sum
 def train(model, loss, optimizer, dataloader, device, epoch, verbose, log_interval=10):
     model.train()
     total = 0
-    batch_output, batch_target = None
+    batch_output, batch_target = None, None
     for batch_idx, (data, target) in enumerate(dataloader):
         data, target = data.to(device), target.to(device)
         optimizer.zero_grad()
@@ -18,8 +18,7 @@ def train(model, loss, optimizer, dataloader, device, epoch, verbose, log_interv
         optimizer.step()
 
         if batch_idx == 0:
-            batch_output, batch_target = output, target
-
+            batch_output, batch_target = output, target 
         if verbose & (batch_idx % log_interval == 0):
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(dataloader.dataset),
@@ -63,7 +62,7 @@ def train_eval_loop(model, loss, optimizer, scheduler, train_loader, test_loader
         train_loss, batch_output, batch_target = train(model, loss, optimizer, train_loader, device, epoch, verbose)
 
         # save batch_output, batch_target:
-        
+        print(save_dir, type(batch_output), type(batch_target)) 
 
         # compute path kernel
         if compute_path_kernel:

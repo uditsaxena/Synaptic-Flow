@@ -60,7 +60,7 @@ def run(args):
     #print('Post-Training for {} epochs.'.format(args.post_epochs))
     post_result = train_eval_loop(model, loss, optimizer, scheduler, train_loader, 
                                   test_loader, device, args.post_epochs, args.verbose,
-                                  args.compute_path_kernel, args.track_weight_movement)
+                                  args.compute_path_kernel, args.track_weight_movement, save_pruned_path)
     
     if (args.save_result):
         save_result_path = args.save_pruned_path + "/%s/%s/%s" % (args.model_class, 
