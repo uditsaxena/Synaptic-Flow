@@ -218,7 +218,7 @@ class SynFlow_L2(Pruner):
         torch.sum(output).backward()
         
         for _, p in self.masked_parameters:
-            self.scores[id(p)] = (torch.clone(p.grad * p).detach().abs_()) ** 2
+            self.scores[id(p)] = (torch.clone(p.grad * (p ** 2)).detach().abs_())
             p.grad.data.zero_()
 
         
@@ -321,7 +321,7 @@ class SynFlow_Dist_L2(Pruner):
         torch.sum(output).backward()
         
         for _, p in self.masked_parameters:
-            self.scores[id(p)] = (torch.clone(p.grad * p).detach().abs_()) ** 2
+            self.scores[id(p)] = (torch.clone(p.grad * (p ** 2)).detach().abs_())
             p.grad.data.zero_()
             
 
