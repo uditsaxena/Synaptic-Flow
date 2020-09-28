@@ -18,7 +18,7 @@ if __name__ == '__main__':
     training_args.add_argument('--dataset', type=str, default='mnist',
                         choices=['mnist','cifar10','cifar100','tiny-imagenet','imagenet'],
                         help='dataset (default: mnist)')
-    training_args.add_argument('--model', type=str, default='fc', choices=['fc', 'fc-1000', 'fc-orth','conv',
+    training_args.add_argument('--model', type=str, default='fc', choices=['fc', 'fc-500', 'fc-1000', 'fc-orth','conv',
                                                                            'conv-orth','strconv',
                         'vgg11','vgg11-bn','vgg13','vgg13-bn','vgg16','vgg16-bn','vgg19','vgg19-bn',
                         'resnet18','resnet18-orth', 'resnet20','resnet32','resnet34','resnet44','resnet50',

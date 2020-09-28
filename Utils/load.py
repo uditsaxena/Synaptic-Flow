@@ -109,6 +109,7 @@ def dataloader(dataset, batch_size, train, workers, length=None, prune_loader=Fa
 def model(model_architecture, model_class):
     default_models = {
         'fc' : mlp.fc,
+        'fc-500' : mlp.fc_500,
         'fc-1000' : mlp.fc_1000,
         'fc-orth' : mlp.fc_orth,
         'conv' : mlp.conv,
