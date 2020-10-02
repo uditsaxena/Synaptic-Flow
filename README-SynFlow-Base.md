@@ -1,18 +1,12 @@
-# Path Kernel
+# Synaptic Flow
 
-This codebase has been built on top of the open source, publicly available code base available at: https://github.com/ganguli-lab/Synaptic-Flow
-
-First: Please read the file title README-SynFlow-Base.md for instructions on how to run the code. 
-
-For instructions specific to Path Kernel, please read the following.
 
 ## Getting Started
-Install all dependencies
+First clone this repo, then install all dependencies
 ```
 pip install -r requirements.txt
 ```
-The code was tested with Python 3.7.0.
-
+The code was tested with Python 3.6.0.
 
 ## Code Base
 Below is a description of the major sections of the code base. Run `python main.py --help` for a complete description of flags and hyperparameters.
@@ -27,6 +21,8 @@ All datasets except Tiny ImagNet and ImageNet will download automatically.  For 
 There are four model classes each defining a variety of model architectures:
  - Default models support basic dense and convolutional model.
  - Lottery ticket models support VGG/ResNet architectures based on [OpenLTH](https://github.com/facebookresearch/open_lth).
+ - Tiny ImageNet models support VGG/ResNet architectures based on this Github [repository](https://github.com/weiaicunzai/pytorch-cifar100).
+ - ImageNet models supports VGG/ResNet architectures from [torchvision](https://pytorch.org/docs/stable/torchvision/models.html).
 
 ### Layers
 
@@ -39,10 +35,19 @@ All pruning algorithms are implemented in the `Pruners` folder.
 ### Experiments
 
 Below is a list and description of the experiment files found in the `Experiment` folder:
- - `prune_only.py`: Used to run the pruning experiments for the Path Kernel Experiments listed here
+ - `example.py`: used to test code.
+ - `singleshot.py`: used to make figure 1, 2, and 6.
+ - `multishot.py`: used to make figure 5a.
+ - `unit-conservation.py`: used to make figure 3.
+ - `layer-conservation.py`: used to make figure 4.
+ - `lottery-layer-conservation.py`: used to make figure 5b.
+ - `synaptic-flow-ratio.py`: used to make figure 7.
 
 
-## Results/Figures
+### Results
 
-All data used to generate the figures in our paper can be found in the `Results/pruned/` folder.  Run the notebook `Notebooks/Plots - Path Kernel, Weight Movement Model Output Logits.ipynb` to generate the figures.
+All data used to generate the figures in our paper can be found in the `Results/data` folder.  Run the notebook `figures.ipynb` to generate the figures.
 
+## Citation
+If you use this code for your research, please cite our paper,
+["Pruning neural networks without any data by iteratively conserving synaptic flow"](https://arxiv.org/abs/2006.05467).
