@@ -112,6 +112,7 @@ def model(model_architecture, model_class):
         'fc-500' : mlp.fc_500,
         'fc-1000' : mlp.fc_1000,
         'fc-2000' : mlp.fc_2000,
+        'fc-5000' : mlp.fc_5000,
         'fc-orth' : mlp.fc_orth,
         'conv' : mlp.conv,
         'conv-orth' : mlp.conv_orth,

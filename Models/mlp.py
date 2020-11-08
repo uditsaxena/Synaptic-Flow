@@ -102,6 +102,30 @@ def fc_2000(input_shape, num_classes, dense_classifier=False, pretrained=False, 
 
   return model
 
+def fc_5000(input_shape, num_classes, dense_classifier=False, pretrained=False, L=6, N=5000, nonlinearity=nn.ReLU()):
+  size = np.prod(input_shape)
+
+  # Linear feature extractor
+  modules = [nn.Flatten()]
+  modules.append(layers.Linear(size, N))
+  modules.append(nonlinearity)
+  for i in range(L - 2):
+    modules.append(layers.Linear(N, N))
+    modules.append(nonlinearity)
+
+  # Linear classifier
+  if dense_classifier:
+    modules.append(nn.Linear(N, num_classes))
+  else:
+    modules.append(layers.Linear(N, num_classes))
+  model = nn.Sequential(*modules)
+
+  # Pretrained model
+  if pretrained:
+    print("WARNING: this model does not have pretrained weights.")
+
+  return model
+
 def fc_orth(input_shape, num_classes, dense_classifier=False, pretrained=False, L=6, N=100, nonlinearity=nn.ReLU()):
   def _orthogonal_init(m):
     if (type(m) == Layers.layers.Linear):
