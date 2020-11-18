@@ -71,7 +71,7 @@ def run(args):
     # print('Post-Training for {} epochs.'.format(args.post_epochs))
     post_result = train_eval_loop(model, loss, optimizer, scheduler, train_loader,
                                   test_loader, device, args.post_epochs, args.verbose,
-                                  args.compute_path_kernel, args.track_weight_movement, save_batch_output_path,
+                                  args.compute_path_kernel, args.track_weight_movement, save_batch_output_path, True,
                                   save_init_path_kernel_output_path, row_name)
 
     if (args.save_result):

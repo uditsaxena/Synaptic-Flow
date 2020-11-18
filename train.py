@@ -54,8 +54,8 @@ def train_eval_loop(model, loss, optimizer, scheduler, train_loader, test_loader
 
     if compute_init_path_kernel:
         path_kernel = compute_path_kernel_sum(model, train_loader, device)
-        with open(save_init_path_kernel_output_path, 'w+') as f:
-            f.write(init_path_kernel_row_name, str(path_kernel))
+        with open(save_init_path_kernel_output_path, 'a') as f:
+            f.write(f"{init_path_kernel_row_name}, {str(path_kernel)}\n")
 
     allw0 = -1
     weight_movement_norm = 0
