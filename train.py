@@ -49,8 +49,13 @@ def eval(model, loss, dataloader, device, verbose):
 
 def train_eval_loop(model, loss, optimizer, scheduler, train_loader, test_loader, device, epochs,
                     verbose, compute_path_kernel = False, track_weight_movement = False,
-                    save_dir = ""):
+                    save_dir = "", compute_init_path_kernel=False, save_init_path_kernel_output_path="", init_path_kernel_row_name = ""):
     path_kernel = 0
+
+    if compute_init_path_kernel:
+        path_kernel = compute_path_kernel_sum(model, train_loader, device)
+        with open(save_init_path_kernel_output_path, 'w+') as f:
+            f.write(init_path_kernel_row_name, str(path_kernel))
 
     allw0 = -1
     weight_movement_norm = 0

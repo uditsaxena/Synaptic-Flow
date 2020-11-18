@@ -3,6 +3,7 @@ import json
 import os
 from Experiments import example
 from Experiments import prune_only 
+from Experiments import init_pk
 from Experiments import singleshot
 from Experiments import multishot
 from Experiments.theory import unit_conservation
@@ -86,7 +87,7 @@ if __name__ == '__main__':
     ## Experiment Hyperparameters ##
     parser.add_argument('--experiment', type=str, default='example', 
                         choices=['example','singleshot','multishot','unit-conservation',
-                        'layer-conservation','imp-conservation','schedule-conservation',"prune-only"],
+                        'layer-conservation','imp-conservation','schedule-conservation',"prune-only", "init-pk"],
                         help='experiment name (default: example)')
     parser.add_argument('--expid', type=str, default='',
                         help='name used to save results (default: "")')
@@ -157,3 +158,35 @@ if __name__ == '__main__':
         schedule_conservation.run(args)
     if args.experiment == "prune-only":
         prune_only.run(args)
+    if args.experiment == "init-pk":
+        configs = [
+            ['default', 'fc', 'mnist', 0.001],
+            ['default', 'fc-500', 'mnist', 0.001],
+            ['default', 'fc-1000', 'mnist', 0.001],
+            ['default', 'fc-2000', 'mnist', 0.001],
+            ['default', 'fc-5000', 'mnist', 0.001],
+            ['lottery', 'resnet20', 'cifar10', 0.001],
+            ['lottery', 'resnet20', 'cifar100', 0.001],
+            ['lottery', 'wide-resnet20', 'cifar10', 0.001],
+            ['lottery', 'wide-resnet20', 'cifar100', 0.001],
+            ['lottery', 'vgg11', 'cifar10', 0.001],
+            ['lottery', 'vgg11', 'cifar100', 0.0005],
+            ['lottery', 'vgg16', 'cifar10', 0.001],
+            ['lottery', 'vgg16', 'cifar100', 0.0001],
+        ]
+        seeds = [43, 2317, 83, 1337, 237, 923, 42]
+        compression = [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3]
+        pruners = ['snip', 'grasp', 'synflow', 'synflow-l2', 'synflow-dist', 'synflow-dist-l2']
+        for seed in seeds:
+            args.seed = seed
+            for comp in compression:
+                args.compression = comp
+                for pruner in pruners:
+                    args.pruner = pruner
+                    for model_config in configs:
+                        args.model_class = model_config[0]
+                        args.model = model_config[1]
+                        args.dataset = model_config[2]
+                        args.lr = model_config[3]
+
+                        init_pk.run(args)
