@@ -116,6 +116,11 @@ if __name__ == '__main__':
     parser.add_argument('--track-weight-movement', action='store_true',
                         help="Track weight movement norm flag, (default: False)")
 
+    parser.add_argument('--compute-init-outputs', action='store_true',
+                        help="Compute all init output (default: False)")
+    parser.add_argument('--compute-init-grads', action='store_true',
+                        help="Compute all init grads (default: False)")
+
     args = parser.parse_args()
 
 

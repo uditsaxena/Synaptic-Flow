@@ -4,7 +4,8 @@ import numpy as np
 from tqdm import tqdm
 from path_kernel import compute_path_kernel_sum
 
-def train(model, loss, optimizer, dataloader, device, epoch, verbose, log_interval=10):
+def train(model, loss, optimizer, dataloader, device, epoch, verbose, log_interval=10,
+          save_init_dir="", compute_init_outputs=False, compute_init_grads=False):
     model.train()
     total = 0
     batch_output, batch_target = None, None
@@ -16,7 +17,9 @@ def train(model, loss, optimizer, dataloader, device, epoch, verbose, log_interv
         total += train_loss.item() * data.size(0)
         train_loss.backward()
         optimizer.step()
-
+        if (compute_init_outputs and epoch == 0):
+            with open(save_dir + f"/init_output_{epoch}_{batch_idx}.npy", 'wb') as f:
+                np.save(f, batch_output.cpu().data)
         if batch_idx == 0:
             batch_output, batch_target = output, target 
         if verbose & (batch_idx % log_interval == 0):
@@ -49,7 +52,8 @@ def eval(model, loss, dataloader, device, verbose):
 
 def train_eval_loop(model, loss, optimizer, scheduler, train_loader, test_loader, device, epochs,
                     verbose, compute_path_kernel = False, track_weight_movement = False,
-                    save_dir = "", compute_init_path_kernel=False, save_init_path_kernel_output_path="", init_path_kernel_row_name = ""):
+                    save_dir = "", compute_init_path_kernel=False, save_init_path_kernel_output_path="", init_path_kernel_row_name = "",
+                    compute_init_outputs=False, compute_init_grads=False):
     path_kernel = 0
 
     if compute_init_path_kernel:
@@ -64,7 +68,9 @@ def train_eval_loop(model, loss, optimizer, scheduler, train_loader, test_loader
     rows = [[np.nan, test_loss, accuracy1, accuracy5, path_kernel, weight_movement_norm]]
 
     for epoch in tqdm(range(epochs)):
-        train_loss, batch_output, batch_target = train(model, loss, optimizer, train_loader, device, epoch, verbose)
+        train_loss, batch_output, batch_target = train(model, loss, optimizer, train_loader, device, epoch, verbose,
+                                                       save_init_dir=save_dir, compute_init_outputs=compute_init_outputs,
+                                                       compute_init_grads=compute_init_grads)
 
         # save batch_output, batch_target:
         # print(save_dir, type(batch_output), type(batch_target)) 

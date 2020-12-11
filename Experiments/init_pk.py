@@ -72,7 +72,8 @@ def run(args):
     post_result = train_eval_loop(model, loss, optimizer, scheduler, train_loader,
                                   test_loader, device, args.post_epochs, args.verbose,
                                   args.compute_path_kernel, args.track_weight_movement, save_batch_output_path, True,
-                                  save_init_path_kernel_output_path, row_name)
+                                  save_init_path_kernel_output_path, row_name, args.compute_init_output,
+                                  args.compute_init_grads)
 
     if (args.save_result):
         save_result_path = args.save_pruned_path + "/%s/%s/%s" % (args.model_class,
