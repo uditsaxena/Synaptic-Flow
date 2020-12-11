@@ -87,7 +87,7 @@ def train_eval_loop(model, loss, optimizer, scheduler, train_loader, test_loader
 
     for epoch in tqdm(range(epochs)):
         train_loss, batch_output, batch_target = train(model, loss, optimizer, train_loader, device, epoch, verbose,
-                                                       save_init_dir=save_dir, compute_init_outputs=compute_init_outputs,
+                                                       save_dir=save_dir, compute_init_outputs=compute_init_outputs,
                                                        compute_init_grads=compute_init_grads)
 
         # save batch_output, batch_target:
