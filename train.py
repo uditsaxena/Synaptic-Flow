@@ -20,8 +20,9 @@ def train(model, loss, optimizer, dataloader, device, epoch, verbose, log_interv
         if (compute_init_grads and epoch == 0):
             optimizer.zero_grad()
             output = model(data)
-            model.backward()
+            output.sum().backward()
             for name, p in model.named_parameters():
+                print(p.shape)
                 p_grad = torch.flatten(torch.clone(p.grad).detach())
                 with open(save_init_dir + f"/init_grad_{epoch}_{name}_{batch_idx}.npy", 'wb') as f:
                     np.save(f, p_grad.cpu().data)
