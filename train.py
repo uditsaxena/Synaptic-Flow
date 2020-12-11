@@ -27,8 +27,11 @@ def train(model, loss, optimizer, dataloader, device, epoch, verbose, log_interv
             output.sum().backward()
             for name, p in model.named_parameters():
                 p_grad = torch.flatten(torch.clone(p.grad).detach())
+                p_data = torch.flatten(torch.clone(p.data).detach())
                 with open(save_init_dir + f"/init_grad_{epoch}_{name}_{batch_idx}.npy", 'wb') as f:
                     np.save(f, p_grad.cpu().data)
+                with open(save_init_dir + f"/init_param_{epoch}_{name}_{batch_idx}.npy", 'wb') as f:
+                    np.save(f, p_data.cpu().data)
         optimizer.zero_grad()
         output = model(data)
         train_loss = loss(output, target)
