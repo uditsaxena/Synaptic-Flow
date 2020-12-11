@@ -9,6 +9,7 @@ def train(model, loss, optimizer, dataloader, device, epoch, verbose, log_interv
     model.train()
     total = 0
     batch_output, batch_target = None, None
+    print("In train, save_init_dir is:", save_init_dir)
     for batch_idx, (data, target) in enumerate(dataloader):
         data, target = data.to(device), target.to(device)
         optimizer.zero_grad()
@@ -18,8 +19,10 @@ def train(model, loss, optimizer, dataloader, device, epoch, verbose, log_interv
         train_loss.backward()
         optimizer.step()
         if (compute_init_outputs and epoch == 0):
-            with open(save_dir + f"/init_output_{epoch}_{batch_idx}.npy", 'wb') as f:
-                np.save(f, batch_output.cpu().data)
+            with open(save_init_dir + f"/init_output_{epoch}_{batch_idx}.npy", 'wb') as f:
+                np.save(f, output.cpu().data)
+        if (compute_init_grads and epoch == 0):
+            print("init grads")
         if batch_idx == 0:
             batch_output, batch_target = output, target 
         if verbose & (batch_idx % log_interval == 0):
