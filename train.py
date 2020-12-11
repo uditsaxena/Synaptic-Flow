@@ -2,13 +2,17 @@ import torch
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
+import os
 from path_kernel import compute_path_kernel_sum
 
 def train(model, loss, optimizer, dataloader, device, epoch, verbose, log_interval=10,
-          save_init_dir="", compute_init_outputs=False, compute_init_grads=False):
+          save_dir="", compute_init_outputs=False, compute_init_grads=False):
     model.train()
     total = 0
     batch_output, batch_target = None, None
+    save_init_dir = save_dir + "/init"
+    if not os.path.exists(save_init_dir):
+        os.makedirs(save_init_dir)
     print("In train, save_init_dir is:", save_init_dir)
     for batch_idx, (data, target) in enumerate(dataloader):
         data, target = data.to(device), target.to(device)
@@ -22,7 +26,6 @@ def train(model, loss, optimizer, dataloader, device, epoch, verbose, log_interv
             output = model(data)
             output.sum().backward()
             for name, p in model.named_parameters():
-                print(p.shape)
                 p_grad = torch.flatten(torch.clone(p.grad).detach())
                 with open(save_init_dir + f"/init_grad_{epoch}_{name}_{batch_idx}.npy", 'wb') as f:
                     np.save(f, p_grad.cpu().data)
