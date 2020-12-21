@@ -16,12 +16,12 @@ def train(model, loss, optimizer, dataloader, device, epoch, verbose, log_interv
     print("In train, save_init_dir is:", save_init_dir)
     for batch_idx, (data, target) in enumerate(dataloader):
         data, target = data.to(device), target.to(device)
-        if (compute_init_outputs and epoch == 0):
+        if (compute_init_outputs and epoch == 0 and batch_idx == 0):
             optimizer.zero_grad()
             output = model(data)
             with open(save_init_dir + f"/init_output_{epoch}_{batch_idx}.npy", 'wb') as f:
                 np.save(f, output.cpu().data)
-        if (compute_init_grads and epoch == 0):
+        if (compute_init_grads and epoch == 0 and batch_idx == 0):
             optimizer.zero_grad()
             output = model(data)
             output.sum().backward()
